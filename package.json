@@ -1,0 +1,50 @@
+{
+  "name": "wrapped-requester",
+  "version": "0.0.1",
+  "description": "wrapped requester",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest",
+    "test-debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
+    "build": "tsc && rm -r lib/__test__ && rm -r types/__test__",
+    "publish": "npm run build && npm publish"
+  },
+  "author": "yibuyisheng (yibuyisheng@163.com)",
+  "license": "ISC",
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "collectCoverage": true,
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "./tsconfig.json",
+        "skipBabel": true
+      }
+    },
+    "testPathIgnorePatterns": ["/(node_modules|lib|coverage|types)/"]
+  },
+  "devDependencies": {
+    "@types/jest": "^22.1.3",
+    "@types/moxios": "^0.4.8",
+    "@types/lodash": "^4.14.104",
+    "jest": "^22.4.2",
+    "moxios": "^0.4.0",
+    "ts-jest": "^22.0.4",
+    "typescript": "^2.7.2"
+  },
+  "peerDependencies": {
+    "axios": "^0.18.0",
+    "lodash": "^4.17.5"
+  },
+  "typings": "types/index.d.ts"
+}

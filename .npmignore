@@ -1,0 +1,10 @@
+coverage
+.vscode
+node_modules
+src
+.editorconfig
+.gitignore
+.npmignore
+package-lock.json
+tsconfig.json
+tslint.json

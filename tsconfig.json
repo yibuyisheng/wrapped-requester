@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "diagnostics": true,
+        "forceConsistentCasingInFileNames": true,
+        "newLine": "LF",
+        "preserveSymlinks": true,
+        "pretty": true,
+        "strict": true,
+        "traceResolution": true,
+        "version": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "module": "commonjs",
+        "target": "es5",
+        "lib": [
+            "es2015",
+            "dom"
+        ],
+        "outDir": "./lib",
+        "watch": false,
+        "declaration": true,
+        "declarationDir": "./types",
+        "baseUrl": "."
+    },
+    "include": [
+        "./src/**/*",
+        "./test/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "lib",
+        "bin",
+        "types"
+    ]
+}
