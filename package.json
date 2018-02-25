@@ -7,7 +7,7 @@
     "test": "jest",
     "test-debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
     "build": "tsc && rm -r lib/__test__ && rm -r types/__test__",
-    "publish": "npm run build && npm publish"
+    "publish-npm": "npm run build && npm publish"
   },
   "author": "yibuyisheng (yibuyisheng@163.com)",
   "license": "ISC",
@@ -46,5 +46,9 @@
     "axios": "^0.18.0",
     "lodash": "^4.17.5"
   },
-  "typings": "types/index.d.ts"
+  "typings": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yibuyisheng/wrapped-requester.git"
+  }
 }

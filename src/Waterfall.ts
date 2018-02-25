@@ -82,8 +82,7 @@ export default class Waterfall extends Base {
         }
 
         record.on('statechange', () => {
-            const state = record.getState();
-            if (!includes(['LOADING', 'READY'], state)) {
+            if (record.isSettled()) {
                 this.results[index] = record.getResult();
                 this.errors[index] = record.getError();
                 this.states[index] = record.getState();

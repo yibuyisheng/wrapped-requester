@@ -1,7 +1,7 @@
 import IParameters from './IParameters';
 import IOptions from './IOptions';
 import axios, {CancelTokenSource} from 'axios';
-import {get} from 'lodash';
+import {get, includes} from 'lodash';
 import Event from './Event';
 
 export type State = 'READY' | 'LOADING' | 'SUCCESS' | 'FAIL' | 'TIMEOUT' | 'CANCELLED';
@@ -53,6 +53,7 @@ export default class Record extends Event {
         }
 
         this.state = 'LOADING';
+        this.emit('statechange', this);
 
         // 超时管理
         const time: number | undefined = get(this.getOptions(), 'time');
@@ -64,8 +65,6 @@ export default class Record extends Event {
                 }
             }, time);
         }
-
-        this.emit('statechange', this);
     }
 
     public success(result: any) {
@@ -98,7 +97,7 @@ export default class Record extends Event {
     }
 
     public cancel() {
-        if (this.state !== 'LOADING') {
+        if (this.state !== 'LOADING' && this.state !== 'READY') {
             throw new Error('Wrong state.');
         }
 
@@ -108,5 +107,9 @@ export default class Record extends Event {
             this.state = 'CANCELLED';
             this.emit('statechange', this);
         }
+    }
+
+    public isSettled(): boolean {
+        return !includes(['READY', 'LOADING'], this.state);
     }
 }

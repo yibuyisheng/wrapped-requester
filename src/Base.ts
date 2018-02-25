@@ -16,12 +16,16 @@ export default class Base {
     }
 
     public async send(parameters: IParameters, options: IOptions): Promise<void> {
-        ({parameters, options} = await this.beforeRequest(parameters, options));
-
+        ({parameters, options} = this.prepare(parameters, options));
         const record = new Record(parameters, options);
-        this.recordCreated(record);
-        record.start();
         this.stack.push(record);
+
+        await this.beforeRequest(record);
+        if (record.isSettled()) {
+            this.completeRequest(record);
+            return;
+        }
+        record.start();
 
         try {
             const result = await this.requester(parameters, options);
@@ -55,20 +59,20 @@ export default class Base {
         }
     }
 
-    protected async beforeRequest(
+    protected prepare(
         parameters: IParameters,
         options: IOptions,
-    ): Promise<{
+    ): {
         parameters: IParameters,
         options: IOptions,
-    }> {
+    } {
         return {
             parameters,
             options,
         };
     }
 
-    protected recordCreated(record: Record): void {}
+    protected async beforeRequest(record: Record): Promise<void> {}
 
     protected requestSuccess(result: any, record: Record): void {}
 

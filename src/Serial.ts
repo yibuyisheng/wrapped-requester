@@ -2,6 +2,7 @@ import Base, {Requester} from './Base';
 import IParameters from './IParameters';
 import IOptions from './IOptions';
 import Record, {State} from './Record';
+import {remove} from 'lodash';
 
 /**
  * 请求处理策略：
@@ -26,41 +27,16 @@ export default class Serial extends Base {
 
     // stack 里面始终最多只会有一个 record ，所以这里可以放心去监听 state change ，
     // 而不用担心多个 record 的 state 互相缠绕。
-    public onStateChange: (record: Record) => void;
+    public onStateChange: (record: Record) => void = (() => {});
 
     private shouldWait: boolean;
 
     public constructor(requester: Requester, shouldWait: boolean = false) {
         super(requester);
-        this.onStateChange = () => {};
         this.shouldWait = shouldWait;
     }
 
-    protected async beforeRequest(
-        parameters: IParameters,
-        options: IOptions,
-    ): Promise<{
-        parameters: IParameters,
-        options: IOptions,
-    }> {
-        if (!this.shouldWait) {
-            this.clearRecords();
-        } else if (this.state === 'LOADING') {
-            // 等前面的请求完毕
-            await new Promise((resolve) => {
-                const prevRecord = this.stack[0];
-                prevRecord.on('statechange', () => {
-                    if (prevRecord.getState() !== 'LOADING') {
-                        resolve();
-                    }
-                });
-            });
-        }
-        return super.beforeRequest(parameters, options);
-    }
-
-    protected recordCreated(record: Record) {
-        super.recordCreated(record);
+    protected async beforeRequest(record: Record): Promise<void> {
         record.on('statechange', () => {
             this.state = record.getState();
             this.error = record.getError();
@@ -68,19 +44,47 @@ export default class Serial extends Base {
 
             this.onStateChange(record);
         });
+
+        if (!this.shouldWait) {
+            this.clearRecords();
+        } else if (this.stack.length > 1) {
+            // 等前面的请求完毕
+            await this.waitComplete();
+        }
+    }
+
+    private async waitComplete() {
+        const prevRecords = this.stack.slice(0, -1);
+        const waitings = prevRecords.map((record) => {
+            return new Promise((resolve) => {
+                if (record.isSettled()) {
+                    remove(this.stack, record);
+                    resolve();
+                    return;
+                }
+
+                record.on('statechange', () => {
+                    if (record.isSettled()) {
+                        remove(this.stack, record);
+                        resolve();
+                    }
+                });
+            });
+        });
+        await Promise.all(waitings);
     }
 
     // 对于“分页”类型的请求，期望的效果是后发起的请求结果覆盖前面的请求结果。
     // 所以后面发起的请求，会终止掉之前的请求，同一时刻只能存在一个处于 LOADING 的请求。
     private clearRecords(): void {
-        if (!this.stack.length) {
+        if (this.stack.length <= 1) {
             return;
         }
 
-        const record = this.stack[0];
-        if (record.getState() === 'LOADING') {
+        const record = this.stack.shift();
+        if (record && !record.isSettled()) {
             record.cancel();
+            record.off('statechange');
         }
-        this.stack.splice(0, this.stack.length);
     }
 }
