@@ -58,8 +58,8 @@ export default class Waterfall extends Base {
         this.stack = [];
     }
 
-    protected recordCreated(record: Record): void {
-        super.recordCreated(record);
+    protected async beforeRequest(record: Record): Promise<void> {
+        super.beforeRequest(record);
 
         const primaryDirection = get(record.getOptions(), 'direction', 'DOWN');
         const direction: 'UP' | 'DOWN' | 'RELOAD' = includes(['UP', 'DOWN', 'RELOAD'], primaryDirection)
