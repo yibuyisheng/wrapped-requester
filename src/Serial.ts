@@ -19,10 +19,26 @@ import {remove} from 'lodash';
  * - 表单提交
  */
 export default class Serial extends Base {
+
+    /**
+     * 任何时刻都只会存在唯一的请求结果。
+     *
+     * @type any
+     */
     public result: any;
 
+    /**
+     * 如果请求出错，该变量就记录出错对象。
+     *
+     * @type any
+     */
     public error: any;
 
+    /**
+     * 当前请求状态。
+     *
+     * @type State
+     */
     public state: State = 'READY';
 
     // stack 里面始终最多只会有一个 record ，所以这里可以放心去监听 state change ，
@@ -31,6 +47,14 @@ export default class Serial extends Base {
 
     private shouldWait: boolean;
 
+    /**
+     * 构造函数
+     *
+     * @constructor
+     * @param {Requester} requester 请求器。
+     * @param {boolean} shouldWait 如果为 true ，则后一个请求到来之后，前一个还没完成，
+     *                             就一直等到前一个请求完成之后再发出请求，否则直接终断前一个请求。
+     */
     public constructor(requester: Requester, shouldWait: boolean = false) {
         super(requester);
         this.shouldWait = shouldWait;

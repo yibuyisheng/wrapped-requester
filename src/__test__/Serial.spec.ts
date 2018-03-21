@@ -94,4 +94,62 @@ describe('Serial', () => {
             done();
         }, 810);
     });
+
+    it('should remove the settled record.', done => {
+        const times = [100, 200, 300];
+        const responses = [1, 2, 3];
+        const requester = async () => {
+            const time = times.shift();
+            const response = responses.shift();
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(response);
+                }, time);
+            });
+        };
+        const states: State[] = [];
+        const serial = new Serial(requester, false);
+        serial.onStateChange = () => {
+            states.push(serial.state);
+        };
+        serial.send({}, {});
+        setTimeout(() => serial.send({}, {}), 110);
+        setTimeout(() => serial.send({}, {}), 320);
+
+        setTimeout(() => {
+            expect(states).toEqual(['LOADING', 'SUCCESS', 'LOADING', 'SUCCESS', 'LOADING', 'SUCCESS']);
+            expect(serial.state).toBe('SUCCESS');
+            expect(serial.result).toBe(3);
+            done();
+        }, 700);
+    });
+
+    it('should remove the settled record when waiting.', done => {
+        const times = [100, 200, 300];
+        const responses = [1, 2, 3];
+        const requester = async () => {
+            const time = times.shift();
+            const response = responses.shift();
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(response);
+                }, time);
+            });
+        };
+        const states: State[] = [];
+        const serial = new Serial(requester, true);
+        serial.onStateChange = () => {
+            states.push(serial.state);
+        };
+        serial.send({}, {});
+        setTimeout(() => serial.send({}, {}), 110);
+        setTimeout(() => serial.send({}, {}), 320);
+
+        setTimeout(() => {
+            expect(states).toEqual(['LOADING', 'SUCCESS', 'LOADING', 'SUCCESS', 'LOADING', 'SUCCESS']);
+            expect(serial.state).toBe('SUCCESS');
+            expect(serial.result).toBe(3);
+            done();
+        }, 800);
+    });
 });

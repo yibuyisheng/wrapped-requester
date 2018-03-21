@@ -1,11 +1,7 @@
 {
     "compilerOptions": {
         "moduleResolution": "node",
-        "diagnostics": true,
-        "forceConsistentCasingInFileNames": true,
-        "newLine": "LF",
         "preserveSymlinks": true,
-        "pretty": true,
         "strict": true,
         "traceResolution": true,
         "version": true,
